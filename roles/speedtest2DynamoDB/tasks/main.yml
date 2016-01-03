@@ -1,0 +1,29 @@
+---
+- name: copy sudoers.d to let osmc use the secure_path (seems to be specific to OSMC)
+  copy: src=osmc-no-secure-path dest=/etc/sudoers.d/osmc-no-secure-path owner=root group=root mode=0440
+  become: yes
+  become_method: sudo
+  when: ansible_kernel[-5:] == '-osmc'
+- name: be sure git is installed
+  apt: name=git
+  become: yes
+  become_method: sudo
+- name: be sure pip is installed
+  apt: name=python-pip
+  become: yes
+  become_method: sudo
+- name: be sure boto3 python module is installed
+  pip: name=boto3
+  become: yes
+  become_method: sudo
+- name: checkout speedtest-cli
+  git: repo=https://github.com/sivel/speedtest-cli.git dest=/home/{{ ansible_user }}/speedtest-cli
+- name: checkout speedtest2DynamoDB
+  git: repo=https://github.com/ujuettner/speedtest2DynamoDB.git dest=/home/{{ ansible_user }}/speedtest2DynamoDB
+- name: create .aws dir
+  file: path=/home/{{ ansible_user }}/.aws state=directory owner=osmc group=osmc mode=0700
+- name: write AWS config
+  template: src=aws.config.j2 dest=/home/{{ ansible_user }}/.aws/config owner=osmc group=osmc mode=0640
+- name: write AWS credentials
+  template: src=aws.credentials.js dest=/home/{{ ansible_user }}/.aws/credentials owner=osmc group=osmc mode=0600
+- cron: name='run speedtest2DynamoDB' minute='*/15' job='cd /home/{{ ansible_user }}/speedtest2DynamoDB && ./speedtest2dynamodb.py' user={{ ansible_user }}
