@@ -3,7 +3,7 @@
   copy: src=osmc-no-secure-path dest=/etc/sudoers.d/osmc-no-secure-path owner=root group=root mode=0440
   become: yes
   become_method: sudo
-  when: ansible_kernel[-5:] == '-osmc'
+  when: ansible_kernel[-5:] == "-osmc"
 - name: be sure git is installed
   apt: name=git
   become: yes
@@ -18,8 +18,18 @@
   become_method: sudo
 - name: checkout speedtest-cli
   git: repo=https://github.com/sivel/speedtest-cli.git dest=/home/{{ ansible_user }}/speedtest-cli
+  register: result_checkout_cli
+  ignore_errors: yes
+  until: not result_checkout_cli|failed
+  retries: 3
+  delay: 10
 - name: checkout speedtest2DynamoDB
   git: repo=https://github.com/ujuettner/speedtest2DynamoDB.git dest=/home/{{ ansible_user }}/speedtest2DynamoDB
+  register: result_checkout_wrapper
+  ignore_errors: yes
+  until: not result_checkout_wrapper|failed
+  retries: 3
+  delay: 10
 - name: create .aws dir
   file: path=/home/{{ ansible_user }}/.aws state=directory owner=osmc group=osmc mode=0700
 - name: write AWS config
