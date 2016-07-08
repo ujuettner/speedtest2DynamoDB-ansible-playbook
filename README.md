@@ -2,7 +2,7 @@
 
 Ansible playbook to provision my Raspberry Pi (running [OSMC](https://osmc.tv/)) to configure and run [speedtest2DynamoDB](https://github.com/ujuettner/speedtest2DynamoDB).
 
-Entry point is `site.yml`.
+Entry point is `site.yml` - run it with `ansible-playbook site.yml` (or dry-run it with `ansible-playbook site.yml --check`).
 
 The playbook relies on several variables being set. Therefore, my hosts file looks like this:
 ```
